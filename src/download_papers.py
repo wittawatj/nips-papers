@@ -108,10 +108,13 @@ def main(year):
             paper_authors.append([len(paper_authors)+1, paper_id, author[0]])
         event_types = [h.contents[0][23:] for h in paper_soup.find_all('h3') if h.contents[0][:22]=="Conference Event Type:"]
         if len(event_types) != 1:
-            print(event_types)
-            print([h.contents for h in paper_soup.find_all('h3')])
-            raise Exception("Bad Event Data")
-        event_type = event_types[0]
+            # cannot determine the event type (poster, paper)
+            #print(event_types)
+            #print([h.contents for h in paper_soup.find_all('h3')])
+            #raise Exception("Bad Event Data")
+            event_type = 'unknown_event'
+        else:
+            event_type = event_types[0]
 
         txt_path = os.path.join(pdfs_base, txt_name)
         if not os.path.exists(txt_path):
@@ -129,10 +132,10 @@ def main(year):
             columns=["Id","Name"]).to_csv(os.path.join(output_base,
                 "Authors.csv"), index=False, encoding='utf-8')
     pd.DataFrame(papers, columns=["Id", "Title", "EventType", "PdfName",
-        "Abstract", "PaperText"]).to_csv(os.path.join("Papers.csv"),
+        "Abstract", "PaperText"]).to_csv(os.path.join(output_base, "Papers.csv"),
                 index=False, encoding='utf-8')
     pd.DataFrame(paper_authors, columns=["Id", "PaperId",
-        "AuthorId"]).to_csv(os.path.join("PaperAuthors.csv"), index=False,
+        "AuthorId"]).to_csv(os.path.join(output_base, "PaperAuthors.csv"), index=False,
                 encoding='utf-8')
 
 if __name__ == '__main__':

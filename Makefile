@@ -12,16 +12,19 @@
 	python src/download_papers.py 2007
 	python src/download_papers.py 2006
 
-6to14:
-	python src/download_papers.py 2014
-	python src/download_papers.py 2013
-	python src/download_papers.py 2012
-	python src/download_papers.py 2011
+6to10:
 	python src/download_papers.py 2010
 	python src/download_papers.py 2009
 	python src/download_papers.py 2008
 	python src/download_papers.py 2007
 	python src/download_papers.py 2006
+
+11to15:
+	python src/download_papers.py 2015
+	python src/download_papers.py 2014
+	python src/download_papers.py 2013
+	python src/download_papers.py 2012
+	python src/download_papers.py 2011
 
 output/Papers.csv:
 	mkdir -p output
