@@ -70,18 +70,35 @@ def main(year):
     pdfs_base = os.path.join(output_base, 'pdfs')
     if not os.path.exists(pdfs_base):
         os.mkdir(pdfs_base)
-    for link in paper_links:
+    for i, link in enumerate(paper_links):
         paper_title = link.contents[0]
         info_link = base_url + link["href"]
         pdf_link = info_link + ".pdf"
+
         pdf_name = link["href"][7:] + ".pdf"
+        txt_name = link["href"][7:] + ".txt"
+        info_name = link["href"][7:] + ".info"
+
         paper_id = re.findall(r"^(\d+)-", pdf_name)[0]
-        pdf = requests.get(pdf_link)
-        pdf_path = os.path.join(output_base, "pdfs", pdf_name)
-        pdf_file = open(pdf_path, "wb")
-        pdf_file.write(pdf.content)
-        pdf_file.close()
-        paper_soup = BeautifulSoup(requests.get(info_link).content)
+
+        pdf_path = os.path.join(pdfs_base, pdf_name)
+        if not os.path.exists(pdf_path):
+            # Only request when the pdf was not downloaded before
+            pdf = requests.get(pdf_link)
+            pdf_file = open(pdf_path, "wb")
+            pdf_file.write(pdf.content)
+            pdf_file.close()
+
+        info_path = os.path.join(pdfs_base, info_name)
+        if not os.path.exists(info_path):
+            info_content = requests.get(info_link).content
+            with open(info_path, 'w') as info_file:
+                info_file.write(info_content)
+        else:
+            with open(info_path, 'r') as info_file:
+                info_content = info_file.read()
+
+        paper_soup = BeautifulSoup(info_content)
         abstract = paper_soup.find('p', attrs={"class": "abstract"}).contents[0]
         authors = [(re.findall(r"-(\d+)$", author.contents[0]["href"])[0],
                     author.contents[0].contents[0])
@@ -95,17 +112,28 @@ def main(year):
             print([h.contents for h in paper_soup.find_all('h3')])
             raise Exception("Bad Event Data")
         event_type = event_types[0]
-        paper_text = text_from_pdf(pdf_path, temp_path)
-        print(paper_title)
+
+        txt_path = os.path.join(pdfs_base, txt_name)
+        if not os.path.exists(txt_path):
+            paper_text = text_from_pdf(pdf_path, temp_path)
+            with open(txt_path, 'w') as txt_file:
+                txt_file.write(paper_text)
+        else:
+            with open(txt_path, 'r') as txt_file:
+                paper_text = txt_file.read()
+
+        print('(%3d/%3d): %s'%(i, len(paper_links), paper_title))
         papers.append([paper_id, paper_title, event_type, pdf_name, abstract, paper_text])
 
     pd.DataFrame(list(nips_authors),
             columns=["Id","Name"]).to_csv(os.path.join(output_base,
-                "Authors.csv"), index=False)
+                "Authors.csv"), index=False, encoding='utf-8')
     pd.DataFrame(papers, columns=["Id", "Title", "EventType", "PdfName",
-        "Abstract", "PaperText"]).to_csv(os.path.join("Papers.csv"), index=False)
+        "Abstract", "PaperText"]).to_csv(os.path.join("Papers.csv"),
+                index=False, encoding='utf-8')
     pd.DataFrame(paper_authors, columns=["Id", "PaperId",
-        "AuthorId"]).to_csv(os.path.join("PaperAuthors.csv"), index=False)
+        "AuthorId"]).to_csv(os.path.join("PaperAuthors.csv"), index=False,
+                encoding='utf-8')
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

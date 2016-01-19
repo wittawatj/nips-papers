@@ -3,3 +3,5 @@ working
 output
 *.pdf
 *.swp
+*.info
+*.txt
