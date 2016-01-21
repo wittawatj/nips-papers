@@ -4,5 +4,8 @@ output
 *.pdf
 *.swp
 *.info
-*.txt
 *.csv
+scowl-2016.01.19/
+output19*
+output20*
+WordNet*
