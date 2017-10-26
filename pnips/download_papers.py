@@ -125,7 +125,7 @@ def main(year):
             with open(txt_path, 'r') as txt_file:
                 paper_text = txt_file.read()
 
-        print('(%3d/%3d): %s'%(i+1, len(paper_links), paper_title))
+        print('(%3d/%3d): %s'%(i, len(paper_links), paper_title))
         papers.append([paper_id, paper_title, event_type, pdf_name, abstract, paper_text])
 
     pd.DataFrame(list(nips_authors),
